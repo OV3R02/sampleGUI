@@ -12,10 +12,10 @@ class Book {
     
     private String bookName;
     private int classBefore;
-    private int cost;
+    private double cost;
     private String bookHealth;
 
-    public Book(String bookName, int classBefore, int cost, String bookHealth) {
+    public Book(String bookName, int classBefore, double cost, String bookHealth) {
         this.bookName = bookName;
         this.classBefore = classBefore;
         this.cost = cost;
@@ -46,11 +46,11 @@ class Book {
         this.classBefore = classBefore;
     }
 
-    public int getCost() {
+    public double getCost() {
         return cost;
     }
 
-    public void setCost(int cost) {
+    public void setCost(double cost) {
         this.cost = cost;
     }
     

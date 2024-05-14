@@ -515,7 +515,7 @@ public class WinSchoolMarket extends javax.swing.JFrame {
         String newBook = "\nDati del nuovo libro inserito: ";
         String bookName = tx_bookName.getText();
         int classBefore = listIdClasses.get(lst_classesBook.getSelectedIndex());
-        int cost = (Integer) sp_bookCost.getValue();
+        Double cost = (Double) sp_bookCost.getValue();
         String bookHealth = tx_bookHealth.getText();
         int ids = listIdStudents.get(lst_studentsList.getSelectedIndex());
         int idsu = listIdSubjects.get(lst_subjects.getSelectedIndex());
@@ -536,7 +536,7 @@ public class WinSchoolMarket extends javax.swing.JFrame {
             stmt.setInt(1, ids);
             stmt.setString(2, bookName);
             stmt.setInt(3, classBefore);
-            stmt.setInt(4, cost);
+            stmt.setDouble(4, cost);
             stmt.setString(5, bookHealth);
             stmt.setInt(6, idsu);
             
