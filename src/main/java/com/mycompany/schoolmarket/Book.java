@@ -4,6 +4,8 @@
  */
 package com.mycompany.schoolmarket;
 
+import java.math.BigDecimal;
+
 /**
  *
  * @author utentepc
@@ -12,10 +14,10 @@ class Book {
     
     private String bookName;
     private int classBefore;
-    private double cost;
+    private BigDecimal cost;
     private String bookHealth;
 
-    public Book(String bookName, int classBefore, double cost, String bookHealth) {
+    public Book(String bookName, int classBefore, BigDecimal cost, String bookHealth) {
         this.bookName = bookName;
         this.classBefore = classBefore;
         this.cost = cost;
@@ -46,11 +48,11 @@ class Book {
         this.classBefore = classBefore;
     }
 
-    public double getCost() {
+    public BigDecimal getCost() {
         return cost;
     }
 
-    public void setCost(double cost) {
+    public void setCost(BigDecimal cost) {
         this.cost = cost;
     }
     

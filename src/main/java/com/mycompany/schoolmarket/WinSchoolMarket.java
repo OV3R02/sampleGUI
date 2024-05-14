@@ -7,6 +7,7 @@ package com.mycompany.schoolmarket;
 import com.mysql.cj.jdbc.Driver;
 import com.mysql.cj.jdbc.PreparedStatementWrapper;
 import com.mysql.cj.xdevapi.Result;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -162,6 +163,8 @@ public class WinSchoolMarket extends javax.swing.JFrame {
                 tx_bookNameActionPerformed(evt);
             }
         });
+
+        sp_bookCost.setModel(new javax.swing.SpinnerNumberModel(0.0d, null, null, 1.0d));
 
         lb_logMessage.setText("nessun dato ancora fornito...");
 
@@ -506,8 +509,8 @@ public class WinSchoolMarket extends javax.swing.JFrame {
         // TODO add your handling code here:
         int index = lst_studentsList.getSelectedIndex();
         String name = lst_studentsList.getSelectedValue();
-        int classSection = listIdClasses.get(index);
         lb_logMessage.setText(" STUDENT_NAME: "+ name);
+        refreshTableBooks();
     }//GEN-LAST:event_lst_studentsListValueChanged
 
     private void btInsertBookActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btInsertBookActionPerformed
@@ -515,11 +518,11 @@ public class WinSchoolMarket extends javax.swing.JFrame {
         String newBook = "\nDati del nuovo libro inserito: ";
         String bookName = tx_bookName.getText();
         int classBefore = listIdClasses.get(lst_classesBook.getSelectedIndex());
-        Double cost = (Double) sp_bookCost.getValue();
+        double cost = (double) sp_bookCost.getValue();
         String bookHealth = tx_bookHealth.getText();
         int ids = listIdStudents.get(lst_studentsList.getSelectedIndex());
         int idsu = listIdSubjects.get(lst_subjects.getSelectedIndex());
-        Book bk = new Book(bookName, classBefore, cost, bookHealth);
+        Book bk = new Book(bookName, classBefore, BigDecimal.valueOf(cost), bookHealth);
         
         newBook+= bk.toString();
         System.out.println(newBook);
@@ -536,7 +539,7 @@ public class WinSchoolMarket extends javax.swing.JFrame {
             stmt.setInt(1, ids);
             stmt.setString(2, bookName);
             stmt.setInt(3, classBefore);
-            stmt.setDouble(4, cost);
+            stmt.setBigDecimal(4, BigDecimal.valueOf(cost));
             stmt.setString(5, bookHealth);
             stmt.setInt(6, idsu);
             
@@ -657,6 +660,7 @@ public class WinSchoolMarket extends javax.swing.JFrame {
                 listIdStudents.add(rs.getInt("id_student"));
                 //model.addElement(rs.getString("tc.section"));
             }
+            
             lst_studentsList.setModel(model);
 
         } catch (Exception e) {
@@ -686,17 +690,28 @@ public class WinSchoolMarket extends javax.swing.JFrame {
     private void refreshTableBooks() {
         try {
             conn = DriverManager.getConnection(DB_URL, USER, PASS);
-            PreparedStatement stmt = conn.prepareStatement("SELECT tb.book_name, tc.section, tb.cost, tb.grade, count(tb.id_subject) as quantity " +
+            /*PreparedStatement stmt = conn.prepareStatement("SELECT tb.book_name, tc.section, tb.cost, tb.grade, count(tb.id_subject) as quantity " +
                                                            "FROM t_books as tb " +
                                                            "join t_subjects tsu on tsu.id_subjects = tb.id_subject " +
                                                            "join t_classes tc on tc.id_class = tb.id_class " +
                                                            "group by tb.id_subject, tb.grade, tb.id_class, tc.section, tb.book_name, tb.cost " +
-                                                           "order by tc.section");
+                                                           "order by tc.section");*/
+            int index = lst_studentsList.getSelectedIndex();
+            int idstSelected=listIdStudents.get(index);
+            
+            PreparedStatement stmt = conn.prepareStatement("SELECT tb.book_name, tc.section, tb.cost, tb.grade, count(tb.id_subject) "
+                    + "as quantity FROM t_students ts "
+                    + "join t_books as tb on tb.id_student = ts.id_student "
+                    + "join t_subjects tsu on tsu.id_subjects = tb.id_subject "
+                    + "join t_classes tc on tc.id_class = tb.id_class "
+                    + "WHERE ts.id_student = ? group by tb.id_subject, tb.grade, tb.id_class, tc.section, tb.book_name, tb.cost order by tc.section ");
+            stmt.setInt(1, idstSelected);
+            
             ResultSet rs = stmt.executeQuery();
             DefaultTableModel model = (DefaultTableModel) tb_booksList.getModel();
             
             DefaultTableModel dm = (DefaultTableModel)tb_booksList.getModel();
-
+            //dm.setRowCount(0);
             while(dm.getRowCount() > 0)
             {
                 dm.removeRow(0);
@@ -706,7 +721,7 @@ public class WinSchoolMarket extends javax.swing.JFrame {
                 String tb = rs.getString("tb.book_name");
                 String cl = rs.getString("tc.section");
                 String gr = rs.getString("tb.grade");
-                int co = rs.getInt("tb.cost");
+                double co = rs.getDouble("tb.cost");
                 int qua = rs.getInt("quantity");
             Object[] obj = new Object[]{
                 tb,cl,co,gr,qua
